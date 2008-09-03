@@ -1,0 +1,111 @@
+<hr><hr>
+<pre>
+<%= @pgFile %>
+</pre>
+<hr><hr>
+
+<!--<form method="post" action="/wml/index">-->
+
+<% form_tag( :action => 'index') do %>
+  
+  <fieldset>
+    <legend>Problem Description</legend>
+    <label for="description">problem description: </label><%= text_area_tag 'description', @description %><br />
+  </fieldset>
+  
+  <fieldset>
+    <legend></legend>
+    <label for="db_subject">database subject: </label>
+    <select name="db_subject" id="db_subject">
+      <% for option in @db_options['subjects'] %>
+        <%= option %>
+      <% end %>
+    </select><br />
+    
+    <label for="db_chapter">database chapter: </label><select name="db_chapter" id="db_chapter">
+    <select name="db_chapter" id="db_chapter">
+      <% for option in @db_options['chapter'] %>
+        <%= option %>
+      <% end %>
+    </select><br />
+    
+    <label for="db_section">database section: </label><select name="db_section" id="db_section">
+    <select name="db_section" id="db_section">
+      <% for option in @db_options['section'] %>
+        <%= option %>
+      <% end %>
+    </select><br />
+  </fieldset>
+  
+  <fieldset>
+    <legend></legend>
+    <label for="keywords">keywords: </label><%= text_field_tag 'keywords', @keywords %><br />
+  </fieldset>
+  
+  <fieldset>
+    <legend>book information</legend>
+    <label for="book_title">book title: </label><%= text_field_tag 'book_title', @book_title %><br />
+    <label for="book_edition">book edition: </label><%= text_field_tag 'book_edition', @book_edition %><br />
+    <label for="book_author">book author: </label><%= text_field_tag 'book_author', @book_author %><br />
+    <label for="book_section">book section: </label><%= text_field_tag 'book_section', @book_section %><br />
+    <label for="book_problem">book problem number: </label><%= text_field_tag 'book_problem', @book_problem %><br />
+  </fieldset>
+  
+  <fieldset>
+    <legend>problem information</legend>
+    <label for="problem_author">problem author: </label><%= text_field_tag 'problem_author', @problem_author %><br />
+    <label for="problem_institution">institution: </label><%= text_field_tag 'problem_institution', @problem_institution %><br />
+    <label for="problem_date">date: </label><%= text_field_tag 'problem_date', @problem_date, :size=>12 %><br />
+  </fieldset>
+  
+  Add variable of random number generated from:
+  <a onclick="new Ajax.Updater('variables', '/wml_dev.php/generator/addVariable/bounds/'+$('theValue').value, {asynchronous:true, evalScripts:false, insertion:Insertion.Bottom, onSuccess:function(request, json){$('theValue').value++;}});; return false;" href="#"> 
+    [lower and upper bounds]
+  </a>
+  <a onclick="new Ajax.Updater('variables', '/wml_dev.php/generator/addVariable/list/'+$('theValue').value, {asynchronous:true, evalScripts:false, insertion:Insertion.Bottom, onSuccess:function(request, json){$('theValue').value++;}});; return false;" href="#"> 
+    [list of choices]
+  </a>
+  
+  <fieldset id="variables">
+    <!-- this <input> essentially holds a counter ($i, if you will) for the variable divs
+         so that we get divs with ids of variable_$i;
+         note that firebug currently causes the incrementor to start at some higher value than 0,
+         but should have no effect on the script
+    -->
+    <%= hidden_field_tag 'theValue', 0 %>
+    
+    <!-- old templates -->
+    <!--
+    <div id="variable_1">
+    <?php echo label_for('variable_name_FOO', 'name: ') . input_tag('variable_name[]', $variable_name[0]) ?><br />
+    <?php echo label_for('variable_low', 'lower bound: ') . input_tag('variable_low[]', $variable_low[0]) ?><br />
+    <?php echo label_for('variable_high', 'upper bound: ') . input_tag('variable_high[]', $variable_high[0]) ?><br />
+    <?php echo label_for('variable_incrementor', 'increment values by: ') . input_tag('variable_incrementor[]', ($variable_incrementor[0])?$variable_incrementor[0]:'1') ?><br />
+    <?php echo input_hidden_tag('variable_list[]', '') ?>
+    </div>
+
+    <div id="variable_2">
+    <?php echo label_for('variable_name', 'name: ') . input_tag('variable_name[]', $variable_name[1]) ?><br />
+    <?php echo input_hidden_tag('variable_low[]', '') ?>
+    <?php echo input_hidden_tag('variable_high[]', '') ?>
+    <?php echo input_hidden_tag('variable_incrementor[]', '') ?>
+    <?php echo label_for('variable_list', 'list of choices: ') . input_tag('variable_list[]', $variable_list[1]) ?><br />
+    </div>
+    -->
+  </fieldset>
+  
+  <fieldset>
+    <legend>question</legend>
+    <label for="question">question: </label><%= text_area_tag 'question', @question %><br />
+    <label for="question_type">question type: </label><select name="question_type" id="question_type"></select><br />
+  </fieldset>
+  
+  <fieldset>
+    <legend>answer</legend>
+    <label for="answer">answer: </label><%= text_field_tag 'answer', @answer %><br />
+    <label for="answer_explanation">explanation: </label><%= text_area_tag 'answer_explanation', @answer_explanation %><br />
+  </fieldset>
+  
+  <%= submit_tag 'submit', :class=>'submit' %>
+  
+<% end %>
