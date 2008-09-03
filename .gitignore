@@ -1,0 +1,6 @@
+log
+tmp
+.bzr
+.bzrignore
+config/database.yml
+config/lighttpd.conf
