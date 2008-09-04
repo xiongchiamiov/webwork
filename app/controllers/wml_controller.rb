@@ -245,4 +245,81 @@ class WmlController < ApplicationController
     return text
   end
   ## end Helper Functions for wml()
+  
+  ## Information Scraping
+  # returns the html of url
+  def scrape(url)
+    require 'open-uri'
+    
+    return open(url).read
+  end
+  # we don't actually do anything with this yet
+  def keywords()    
+    html = scrape('http://hobbes.la.asu.edu/Holt/keywords.html')
+    
+    # remove everything before the first <br>
+    match = html.match('<br>')
+    html = match[0] + match.post_match
+    # and everything after (and including) </body>
+    match = html.match("\n</body>")
+    html = match.pre_match
+    
+    # change into an option list
+    html.gsub!('<br>&nbsp;', '<option>')
+    html.gsub!("\n", "</option>\n")
+    
+    return html
+  end
+  # returns an array $html, of which keys 'subject', 'chapter' and 'section'
+  # provide option lists for their respectives
+  def database_options_list()
+    scraped_html = scrape('http://hobbes.la.asu.edu/Holt/chaps-and-secs.html')
+    
+    # remove everything before the first <br>
+    match = html.match('<br>')
+    scraped_html = match[0] + match.post_match
+    # and everything after (and including) </body>
+    match = html.match("\n</body>")
+    scraped_html = match.pre_match
+    
+    # Subjects Scraping
+    html = {:subjects => ''}
+    # get all the matches and put them in a hash table
+    subjects = scraped_html.scan("(?<=<p><b>').*(?='</b><br>)")
+    subjects[0].each { |subject| html['subjects'] += "<option>#{subject}</option>\n" }
+    ## end Subjects Scraping
+    
+    ## Chapters Scraping
+    html = {:chapters => ''}
+    # divide into groupings so that each has one subject
+    subjects = scraped_html.split("<p><b>")
+    subjects.each do |subject|
+      # add subject as a grouping label
+      subject_name = subject.match("(?<=').*(?='</b><br>)")
+      html['chapters'] += '<optgroup label="'+subject_name[0]+"\">\n"
+      # then extract each chapter
+      chapters = subject.scan("(?<=<i>').*(?='</i><br>)")
+      # and add them in as options
+      chapters[0].each {|chapter| html['chapters'] += "<option>#{chapter}</option>\n" }
+    end
+    ## end Chapters Scraping
+    
+    ## Sections Scraping
+    html = {:sections => ''}
+    # divide into groupings so that each one has one chapter
+    chapters = scraped_html.split("<i>")
+    chapters.each do |chapter|
+      # add chapter as a grouping label
+      chapter_name = chapter.match("(?<=').*(?='</i><br>)")
+      $html['sections'] += '<optgroup label="'+chapter_name[0]+"\">\n"
+      # then extract each section
+      preg_match_all("!(?<=&nbsp;').*(?='<br>)!", $chapter, $sections);
+      # and add them in as options
+      sections[0].each {|section| html['sections'] += "<option>#{section}</option>\n" }
+    end
+    ## end Sections Scraping
+    
+    return html
+  end
+  ## end Information Scraping
 end
