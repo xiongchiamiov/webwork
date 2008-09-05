@@ -1,3 +1,5 @@
+<%= javascript_include_tag :defaults %>
+
 <hr><hr>
 <pre>
 <%= @pgFile %>
@@ -59,21 +61,29 @@
   </fieldset>
   
   Add variable of random number generated from:
-  <a onclick="new Ajax.Updater('variables', '/wml_dev.php/generator/addVariable/bounds/'+$('theValue').value, {asynchronous:true, evalScripts:false, insertion:Insertion.Bottom, onSuccess:function(request, json){$('theValue').value++;}});; return false;" href="#"> 
+  <!-- we can't mix javascript with the rails helpers, so we take the generated code
+       and modify it a bit, and it's the anchor below this -->
+  <%# link_to_remote '[lower and upper bounds]', 
+    :update    =>  'variables',
+    'position'  =>  'bottom',
+    :url       =>  { :action => 'addVariable', :type => 'bounds', :id => 5 },
+    :success   =>  '$(\'theValue\').value++;'
+  %>
+  <a onclick="new Ajax.Updater('variables', '/wml/addVariable/'+$('theValue').value+'?type=bounds', {asynchronous:true, evalScripts:false, insertion:Insertion.Bottom, onSuccess:function(request, json){$('theValue').value++;}, parameters:'authenticity_token=' + encodeURIComponent('<%= form_authenticity_token %>')});; return false;" href="#"> 
     [lower and upper bounds]
   </a>
-  <a onclick="new Ajax.Updater('variables', '/wml_dev.php/generator/addVariable/list/'+$('theValue').value, {asynchronous:true, evalScripts:false, insertion:Insertion.Bottom, onSuccess:function(request, json){$('theValue').value++;}});; return false;" href="#"> 
+  <a onclick="new Ajax.Updater('variables', '/wml/addVariable/'+$('theValue').value+'?type=list', {asynchronous:true, evalScripts:false, insertion:Insertion.Bottom, onSuccess:function(request, json){$('theValue').value++;}, parameters:'authenticity_token=' + encodeURIComponent('<%= form_authenticity_token %>')});; return false;" href="#"> 
     [list of choices]
   </a>
   
+  <!-- this <input> essentially holds a counter ($i, if you will) for the variable divs
+       so that we get divs with ids of variable_$i;
+       note that firebug currently causes the incrementor to start at some higher value than 0,
+       but should have no effect on the script
+  -->
+  <%= hidden_field_tag 'theValue', 0 %>
+  
   <fieldset id="variables">
-    <!-- this <input> essentially holds a counter ($i, if you will) for the variable divs
-         so that we get divs with ids of variable_$i;
-         note that firebug currently causes the incrementor to start at some higher value than 0,
-         but should have no effect on the script
-    -->
-    <%= hidden_field_tag 'theValue', 0 %>
-    
     <!-- old templates -->
     <!--
     <div id="variable_1">

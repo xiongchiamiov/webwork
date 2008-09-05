@@ -122,6 +122,15 @@ class WmlController < ApplicationController
     end
   end
   
+  ## AJAX
+  def addVariable
+    render :partial => 'addVariable', :locals => { :params => params }
+  end
+  
+  #########
+  private #
+  #########
+  
   def wml(text)
     curlies = text.to_s.scan('/{{.*?}}/')
     equals = text.to_s.scan('/==.*==/')
@@ -165,10 +174,6 @@ class WmlController < ApplicationController
     
     return text
   end
-  
-  #########
-  private #
-  #########
   
   ## Helper Functions for wml()
   def curly(text)

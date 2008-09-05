@@ -1,0 +1,36 @@
+<% javascript_include_tag :defaults %>
+
+<%
+id = params[:id]
+type = params[:type]
+%>
+
+<div id="variable_<%= id %>">
+<%# this onClick does a few things:
+    first, it rolls up this div for nice effect
+    second, it starts a timer that waits five seconds,
+    then blanks the html inside the div, so the form values don't submit
+    
+    the actual javascript call (unescaped) looks like this:
+      Effect.BlindUp('variable_11'); setTimeout("$('variable_11').innerHTML=\"\"", 5000);
+    with 11 of course being whatever id value this div has
+%>
+<%= link_to_function('[remove this variable]', "Effect.BlindUp('variable_"+id+"'); setTimeout(\"$('variable_"+id+"').innerHTML=\\\"\\\"\", 5000);") %> <br />
+
+
+<% if type=='bounds' %>
+<label for="variable_name_FOO">name: </label><%= text_field_tag 'variable_name[]' %><br />
+<label for="variable_low"> lower bound: </label><%= text_field_tag 'variable_low[]' %><br />
+<label for="variable_high"> upper bound: </label><%= text_field_tag 'variable_high[]' %><br />
+<label for="variable_incrementor"> increment values by: </label><%= text_field_tag 'variable_incrementor[]', '1' %><br />
+<%= hidden_field_tag('variable_list[]', '') %>
+
+<% else #assume $type=='list' %>
+<label for="variable_name">name: </label><%= text_field_tag('variable_name[]') %><br />
+<%= hidden_field_tag('variable_low[]', '') %>
+<%= hidden_field_tag('variable_high[]', '') %>
+<%= hidden_field_tag('variable_incrementor[]', '') %>
+<label for="variable_list">list of choices: </label><%= text_field_tag('variable_list[]') %><br />
+<% end %>
+
+</div>
