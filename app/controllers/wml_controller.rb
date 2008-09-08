@@ -128,7 +128,7 @@ class WmlController < ApplicationController
   end
   
   #########
-  private #
+  #private #
   #########
   
   def wml(text)

@@ -1,8 +1,74 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class WmlControllerTest < ActionController::TestCase
-  # Replace this with your real tests.
-  def test_truth
-    assert true
+  # I don't think I need this, but I'm leaving it for the moment
+  def escape(text)
+    return text.gsub('/', '//')
+  end
+  
+  def setup
+    #foo = WmlController.new
+  end
+  
+  ## formatting
+  def test_formatting
+    foo = WmlController.new
+    tests = {
+      '{{bold}}'      => '${BBOLD}',
+      '{{/bold}}'     => '${EBOLD}',
+    }
+    
+    tests.each { |in_, out| assert_same foo.wml(in_), out }
+  end
+  
+  ## basic equations
+  def test_basic_equations
+    foo = WmlController.new
+    tests = {}
+    
+    tests['inline'] = {
+      '==x+3=='       => '\(x+3\)',
+    }
+    tests['block'] = {
+      '==|x+3=='      => '\[x+3\]',
+    }
+    tests['exponents'] = {
+      '==x**2=='      => '\(x^2\)',
+    }
+    
+    tests.each do
+      |test|
+      test.each { |in_, out| assert_same foo.wml(in_), out }
+    end
+  end
+
+  ## fractions
+  def test_fractions
+    foo = WmlController.new
+    tests = {}
+    
+    tests['numerator'] = {
+      '==a/b=='             => '\(\frac{a}{b}\)',
+      '==5+a/b=='           => '\(\frac{5+a}{b}\)',
+      '==5+ a/b=='          => '\(5+ \frac{a}{b}\)',
+      '==5+ -a/b=='         => '\(5+ \frac{-a}{b}\)',
+      '=={5+ a}/b=='        => '\(\frac{5+ a}{b}\)',
+      '==(5+ a)/b=='        => '\(\frac{(5+ a)}{b}\)',
+      '==(1*2)(5+a)/b=='    => '\(\frac{(1*2)(5+a)}{b}\)',
+    }
+    tests['denominator'] = {
+      '==a/b=='             => '\(\frac{a}{b}\)',
+      '==a/5+b=='           => '\(\frac{a}{5+b}\)',
+      '==a/b +5=='          => '\(\frac{a}{b} +5\)',
+      '==a/-b +5=='         => '\(\frac{a}{-b} +5\)',
+      '==a/{b +5}=='        => '\(\frac{a}{b +5}\)',
+      '==a/(b +5)=='        => '\(\frac{a}{(b +5)}\)',
+      '==(5+a)/b(1*2)=='    => '\(\frac{(5+a)}{b(1*2)}\)',
+    }
+    
+    tests.each do
+      |test|
+      test.each { |in_, out| assert_same foo.wml(in_), out }
+    end
   end
 end
