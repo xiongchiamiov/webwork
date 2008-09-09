@@ -14,11 +14,12 @@ class WmlControllerTest < ActionController::TestCase
   def test_formatting
     foo = WmlController.new
     tests = {
-      '{{bold}}'      => '${BBOLD}',
-      '{{/bold}}'     => '${EBOLD}',
+      '{{bold}}'                      => '${BBOLD}',
+      '{{/bold}}'                     => '${EBOLD}',
+      '{{bold}}filler text{{/bold}}'  => '${BBOLD}filler text${EBOLD}',
     }
     
-    tests.each { |in_, out| assert_same foo.wml(in_), out }
+    tests.each { |in_, out| assert_equal out, foo.wml(in_) }
   end
   
   ## basic equations
@@ -37,8 +38,8 @@ class WmlControllerTest < ActionController::TestCase
     }
     
     tests.each do
-      |test|
-      test.each { |in_, out| assert_same foo.wml(in_), out }
+      |key,test|
+      test.each { |in_, out| assert_equal out, foo.wml(in_) }
     end
   end
 
@@ -67,8 +68,8 @@ class WmlControllerTest < ActionController::TestCase
     }
     
     tests.each do
-      |test|
-      test.each { |in_, out| assert_same foo.wml(in_), out }
+      |key,test|
+      test.each { |in_, out| assert_equal out, foo.wml(in_) }
     end
   end
 end

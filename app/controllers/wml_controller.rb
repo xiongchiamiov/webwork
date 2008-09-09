@@ -131,36 +131,39 @@ class WmlController < ApplicationController
   #private #
   #########
   
-  def wml(text)
-    curlies = text.to_s.scan('/{{.*?}}/')
-    equals = text.to_s.scan('/==.*==/')
+  def wml(input_text)
+    text = input_text.to_s.dup
+    
+    curlies = [[],[]]
+    equals = [[],[]]
+    curlies[0] = text.scan(/\{\{.*?\}\}/)
+    equals[0] = text.scan(/==.*==/)
     
     curlies[0].each do |curlyBlock|
       # trim brackets off the ends
-      result = curlyBlock.gsub('/^{+|}+$/', '')
+      result = curlyBlock.gsub(/^\{+|\}+$/, '')
       result = curly(result)
       
-      curlies[1][] = result
-      
-      #!!# use %r{[pattern]}?
-      # add delimiters around each $curlyBlock for regex subst
-      curlyBlock = '|' + curlyBlock + '|'
+      curlies[1].push result
     end unless curlies[0].blank?
     
     equals[0].each do |equalsBlock|
       # trim brackets off the ends
-      result = equalsBlock.gsub('/^{+|}+$/', '')
+      result = equalsBlock.gsub(/^=+|=+$/, '')
       result = equals(result)
       
-      equals[1][] = result
+      equals[1].push result
       
       #!!# use %r{[pattern]}?
       # add delimiters around each $curlyBlock for regex subst
       equalsBlock = '#' + equalsBlock + '#';
       # and escape out characters that throw a wrench in the regex-ing later
       find = ['+', '(', ')', '*', '|', '^']
-      replace = ['\+', '\(', '\)', '\*', '\|', '\^']
-      equalsBlock.gsub!(find, replace)
+      replace_with = ['\+', '\(', '\)', '\*', '\|', '\^']
+      #equalsBlock.gsub!(find, replace)
+      [find, replace_with].transpose.each do |search, replace|
+        equalsBlock.gsub!(search, replace)
+      end
     end unless equals[0].blank?
     
     #text.gsub!(curlies[0].to_a, curlies[1].to_a)
@@ -179,7 +182,7 @@ class WmlController < ApplicationController
   def curly(text)
     case text.downcase
       when 'par'
-        return '$PAR'
+        return '${PAR}'
       when 'bold'
         return '${BBOLD}'
       when '/bold'
@@ -194,37 +197,41 @@ class WmlController < ApplicationController
   end
   
   def equals(text)
+    require 'oniguruma'
+    
     # check to see if equation's not supposed to be inline
-    inline = text[0]!='|';
+    inline = text[0]!=124; # 124 is the pipe (|) character
     if !inline
       # remove | at beginning of string
       text = text.slice(1..-1)
     end
     
     # check if there's an answer box
-    if text =~ 'ans\([0-9]+\)'
+    if text =~ /ans\([0-9]+\)/
       return '\{' + text.gsub('ans(', 'ans_rule(') + '\}'
     # is there a fraction?
-    elsif text =~ '([a-zA-Z0-9-+`]|[{(].*[)}])+/([a-zA-Z0-9-+`]|[{(].*[)}])+'
+    elsif text =~ /([a-zA-Z0-9\-\+`]|[{(].*[)}])+\/([a-zA-Z0-9\-\+`]|[{(].*[)}])+/
       # select out the numerator
       num = text.match('([a-zA-Z0-9\-+`]|[{(].*[)}])+(?=/([a-zA-Z0-9\-+`]|[{(].*[)}])+)')
       # and the denominator
-      denom = text.match('(?<=(([a-zA-Z0-9-+`])|[})])/)([a-zA-Z0-9-+`]|[{(].*[)}])+')
-      #!!# THIS NEEDS TO BE A SUBSTITUTION, NOT A REPLACEMENT
-      $text = '\frac{'+num[0]+'}{'+denom[0]+'}'
+      #denom = text.match('(?<=(([a-zA-Z0-9\-+`])|[\}\)])/)([a-zA-Z0-9\-+`]|[\{\(].*[\)\}])+')
+      # ruby <1.9 doesn't have lookbehinds built-in, so we need oniguruma
+      denom = Oniguruma::ORegexp.new('(?<=(([a-zA-Z0-9\-+`])|[\}\)])/)([a-zA-Z0-9\-+`]|[\{\(].*[\)\}])+').match(text)
+      
+      text.gsub!(/([a-zA-Z0-9\-\+`]|[{(].*[)}])+\/([a-zA-Z0-9\-\+`]|[{(].*[)}])+/, '\frac{'+num[0]+'}{'+denom[0]+'}')
       
       # remove any double curly brackets (meaning we used them to group expressions)
-      if text =~ '{{'
-        text.gsub!('/{{/', '{')
-        text.gsub!('/}}/', '}')
+      if text =~ /\{\{/
+        text.gsub!(/\{\{/, '{')
+        text.gsub!(/\}\}/, '}')
       end
     # otherwise we'll assume what's in there is just a variable, assuming it's something perl will accept
-    elsif text =~ '^[a-zA-Z^`][a-zA-Z0-9_]*$'
+    elsif text =~ %r{^[a-zA-Z^`][a-zA-Z0-9_]*$}
       text = '$' + text
     end
     
     # substitute all the variables that are included with backticks
-    text = wml_basic($text)
+    text = wml_basic(text)
     
     # set equation to be either inline or block
     if inline
