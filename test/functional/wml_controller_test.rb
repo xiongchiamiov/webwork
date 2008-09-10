@@ -19,7 +19,7 @@ class WmlControllerTest < ActionController::TestCase
       '{{bold}}filler text{{/bold}}'  => '${BBOLD}filler text${EBOLD}',
     }
     
-    tests.each { |in_, out| assert_equal out, foo.wml(in_) }
+    tests.each { |in_, out| assert_equal out, foo.send(:wml, in_) }
   end
   
   ## basic equations
@@ -39,7 +39,7 @@ class WmlControllerTest < ActionController::TestCase
     
     tests.each do
       |key,test|
-      test.each { |in_, out| assert_equal out, foo.wml(in_) }
+      test.each { |in_, out| assert_equal out, foo.send(:wml, in_) }
     end
   end
 
@@ -69,7 +69,27 @@ class WmlControllerTest < ActionController::TestCase
     
     tests.each do
       |key,test|
-      test.each { |in_, out| assert_equal out, foo.wml(in_) }
+      test.each { |in_, out| assert_equal out, foo.send(:wml, in_) }
+    end
+  end
+  
+  def test_database_options_list
+    foo = WmlController.new
+    tests = {}
+    
+    tests['http://production.xyztextbooks.com/database_options.html'] = {
+      'subjects'  => "<option>Foo</option>\n<option>Bar</option>\n",
+      'chapters'  => "<optgroup label=\"Foo\">\n<option>FooFoo</option>\n<option>FooBar</option>\n</optgroup>\n<optgroup label=\"Bar\">\n<option>BarFoo</option>\n<option>BarBar</option>\n</optgroup>\n",
+      'sections'  => "<optgroup label=\"FooFoo\">\n<option>FooFooFoo</option>\n<option>FooFooBar</option>\n</optgroup>\n<optgroup label=\"FooBar\">\n<option>FooBarFoo</option>\n<option>FooBarBar</option>\n</optgroup>\n<optgroup label=\"BarFoo\">\n<option>BarFooFoo</option>\n<option>BarFooBar</option>\n</optgroup>\n<optgroup label=\"BarBar\">\n<option>BarBarFoo</option>\n<option>BarBarBar</option>\n</optgroup>\n",
+    }
+    
+    tests.each do
+      |key,test|
+      # make sure scrape() returns *something*
+      assert_not_nil foo.send(:scrape, key)
+      # get the <option> lists
+      lists = foo.send(:database_options_list, key)
+      test.each { |in_, out| assert_equal out, lists[in_] }
     end
   end
 end

@@ -24,16 +24,16 @@
       <% end %>
     </select><br />
     
-    <label for="db_chapter">database chapter: </label><select name="db_chapter" id="db_chapter">
+    <label for="db_chapter">database chapter: </label>
     <select name="db_chapter" id="db_chapter">
-      <% for option in @db_options['chapter'] %>
+      <% for option in @db_options['chapters'] %>
         <%= option %>
       <% end %>
     </select><br />
     
-    <label for="db_section">database section: </label><select name="db_section" id="db_section">
+    <label for="db_section">database section: </label>
     <select name="db_section" id="db_section">
-      <% for option in @db_options['section'] %>
+      <% for option in @db_options['sections'] %>
         <%= option %>
       <% end %>
     </select><br />

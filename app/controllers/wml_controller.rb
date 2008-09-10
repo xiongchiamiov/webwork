@@ -1,5 +1,7 @@
 class WmlController < ApplicationController
-
+  
+  layout 'base'
+  
   def index
     #!!# THIS WILL GO ONCE STUFF IS BUILT
     @db_options = {
@@ -39,6 +41,8 @@ class WmlController < ApplicationController
     
     @answer = params[:answer]
     @answer_explanation = params[:answer_explanation]
+    
+    @db_options = database_options_list()
     ## end Request Variables
     
     if request.post?
@@ -128,7 +132,7 @@ class WmlController < ApplicationController
   end
   
   #########
-  #private #
+  private #
   #########
   
   def wml(input_text)
@@ -284,50 +288,55 @@ class WmlController < ApplicationController
   end
   # returns an array $html, of which keys 'subject', 'chapter' and 'section'
   # provide option lists for their respectives
-  def database_options_list()
-    scraped_html = scrape('http://hobbes.la.asu.edu/Holt/chaps-and-secs.html')
+  def database_options_list(site='http://hobbes.la.asu.edu/Holt/chaps-and-secs.html')    
+    scraped_html = scrape(site)
     
-    # remove everything before the first <br>
-    match = html.match('<br>')
+    # remove everything before the first <p><b>
+    match = scraped_html.match('<p><b>')
     scraped_html = match[0] + match.post_match
     # and everything after (and including) </body>
-    match = html.match("\n</body>")
+    match = scraped_html.match("\n</body>")
     scraped_html = match.pre_match
     
-    # Subjects Scraping
-    html = {:subjects => ''}
+    html = {}
+    
+    ## Subjects Scraping
     # get all the matches and put them in a hash table
-    subjects = scraped_html.scan("(?<=<p><b>').*(?='</b><br>)")
-    subjects[0].each { |subject| html['subjects'] += "<option>#{subject}</option>\n" }
+    subjects = scraped_html.scan %r{<p><b>'(.*?)'</b><br>}
+    subjects.each { |subject| html['subjects'] = html['subjects'].to_s + "<option>#{subject}</option>\n" }
     ## end Subjects Scraping
     
     ## Chapters Scraping
-    html = {:chapters => ''}
     # divide into groupings so that each has one subject
     subjects = scraped_html.split("<p><b>")
+    # get rid of the first element, since it holds junk we don't want
+    subjects = subjects[1..-1]
     subjects.each do |subject|
       # add subject as a grouping label
-      subject_name = subject.match("(?<=').*(?='</b><br>)")
-      html['chapters'] += '<optgroup label="'+subject_name[0]+"\">\n"
+      subject_name = subject.match("'(.*?)'</b><br>")
+      html['chapters'] = html['chapters'].to_s + '<optgroup label="'+subject_name[1]+"\">\n"
       # then extract each chapter
-      chapters = subject.scan("(?<=<i>').*(?='</i><br>)")
+      chapters = subject.scan %r{<i>'(.*?)'</i><br>}
       # and add them in as options
-      chapters[0].each {|chapter| html['chapters'] += "<option>#{chapter}</option>\n" }
+      chapters.each {|chapter| html['chapters'] = html['chapters'].to_s + "<option>#{chapter}</option>\n" }
+      html['chapters'] += "</optgroup>\n"
     end
     ## end Chapters Scraping
     
     ## Sections Scraping
-    html = {:sections => ''}
     # divide into groupings so that each one has one chapter
     chapters = scraped_html.split("<i>")
+    # get rid of the first element, since it holds junk we don't want
+    chapters = chapters[1..-1]
     chapters.each do |chapter|
       # add chapter as a grouping label
-      chapter_name = chapter.match("(?<=').*(?='</i><br>)")
-      $html['sections'] += '<optgroup label="'+chapter_name[0]+"\">\n"
+      chapter_name = chapter.match("'(.*?)'</i><br>")
+      html['sections'] = html['sections'].to_s + '<optgroup label="'+chapter_name[1]+"\">\n"
       # then extract each section
-      preg_match_all("!(?<=&nbsp;').*(?='<br>)!", $chapter, $sections);
+      sections = chapter.scan %r{&nbsp;'(.*?)'<br>}
       # and add them in as options
-      sections[0].each {|section| html['sections'] += "<option>#{section}</option>\n" }
+      sections.each {|section| html['sections'] = html['sections'].to_s + "<option>#{section}</option>\n" }
+      html['sections'] += "</optgroup>\n"
     end
     ## end Sections Scraping
     
