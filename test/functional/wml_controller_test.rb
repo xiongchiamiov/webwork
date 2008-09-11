@@ -36,6 +36,15 @@ class WmlControllerTest < ActionController::TestCase
     tests['exponents'] = {
       '==x**2=='      => '\(x^2\)',
     }
+    tests['variables'] = {
+      '==a=='         => '\($a\)',
+      '==xyz=='       => '\($xyz\)',
+      '==`a`=='       => '\($a\)',
+      '==`xyz`=='     => '\($xyz\)',
+    }
+    tests['absolute value'] = {
+      #'== |52|=='     => '\(abs(52)\)',
+    }
     
     tests.each do
       |key,test|
@@ -65,6 +74,12 @@ class WmlControllerTest < ActionController::TestCase
       '==a/{b +5}=='        => '\(\frac{a}{b +5}\)',
       '==a/(b +5)=='        => '\(\frac{a}{(b +5)}\)',
       '==(5+a)/b(1*2)=='    => '\(\frac{(5+a)}{b(1*2)}\)',
+    }
+    tests['variables'] = {
+      '==`a`/b=='           => '\(\frac{$a}{b}\)',
+      '==`a`/`b`=='         => '\(\frac{$a}{$b}\)',
+      '==5+ `a`/b=='        => '\(5+ \frac{$a}{b}\)',
+      '==5+ -`a`/b=='       => '\(5+ \frac{-$a}{b}\)',
     }
     
     tests.each do

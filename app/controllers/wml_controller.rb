@@ -249,7 +249,7 @@ class WmlController < ApplicationController
   
   def wml_basic(text)
     # substitute all the variables that are included with backticks
-    text.gsub!(%r{`([A-z][A-z0-9_]*?)`},'\$\1') unless text.nil?
+    text.gsub!(%r{`([A-z][A-z0-9_]*?)`},'$\1') unless text.nil?
     
     # change carets to double-asterisks
     #text.gsub!('^', '**')
