@@ -65,11 +65,11 @@ class WmlController < ApplicationController
       @pgFile += "Context(\"Numeric\");\n\n";
       
       # assign random numbers to variables
-      params[:variable_name].to_a.each do |key, name|
-        if params[:variable_low[key]] != nil:
-          @pgFile += "\$#{name} = random(#{params[:variable_low[key]]},#{params[:variable_high[key]]},#{params[:variable_incrementor[key]]});\n"
+      params[:variable_name].to_a.each_with_index do |name, key|
+        if !params[:variable_low][key].empty?:
+          @pgFile += "\$#{name} = random(#{params[:variable_low][key]},#{params[:variable_high][key]},#{params[:variable_incrementor][key]});\n"
         else
-          @pgFile += "\$#{name} = list_random(#{params[:variable_list[key]]});\n"
+          @pgFile += "\$#{name} = list_random(#{params[:variable_list][key]});\n"
         end
       end
       
