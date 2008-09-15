@@ -10,6 +10,88 @@ class WmlController < ApplicationController
       'section'   => ''
     }
     
+    @question = params[:question]
+    params[:question] = params[:question].to_s + "\n==ans(8)=="
+    
+    if request.post?
+      ## WML Parsing
+      # array of things that need to be parsed through wml
+      wml_needed = [:question, :answer_explanation]
+      # array of things that only need basic parsing
+      basic_parsing_needed = [:answer]
+      
+      # process them one at a time
+      wml_needed.each {|chunk| params[chunk] = wml(params[chunk])}
+      basic_parsing_needed.each {|chunk| params[chunk] = wml_basic(params[chunk])}
+      ## end WML Parsing
+      
+      ## Build .pg File
+      @pgFile = ''
+      
+      # if description has newlines, prepend ## to every line except first
+      params[:description].gsub!("\n", "\n##") unless params[:description].nil?
+      
+      # add description block
+      @pgFile += "## DESCRIPTION\n"
+      @pgFile += "## #{params[:description]}\n"
+      @pgFile += "## ENDDESCRIPTION\n\n"
+      
+      # surround commas with single quotes so that list items are quoted
+      if !params[:keywords].nil?:
+        params[:keywords].gsub!(",", "','")
+      end
+      
+      @pgFile += "## DBsubject('#{params[:db_subject]}')\n";
+      @pgFile += "## DBchapter('#{params[:db_chapter]}')\n";
+      @pgFile += "## DBsection('#{params[:db_section]}')\n";
+      @pgFile += "## Date('#{params[:problem_date]}')\n";
+      @pgFile += "## Author('#{params[:problem_author]}')\n";
+      @pgFile += "## Institution('#{params[:problem_institution]}')\n";
+      @pgFile += "## TitleText1('#{params[:book_title]}')\n";
+      @pgFile += "## EditionText1('#{params[:book_edition]}')\n";
+      @pgFile += "## AuthorText1('#{params[:book_author]}')\n";
+      @pgFile += "## Section1('#{params[:book_section]}')\n";
+      @pgFile += "## Problem1('#{params[:book_problem]}')\n\n";
+      
+      @pgFile += "DOCUMENT();\n\n";
+      
+      #!!# THIS NEEDS TO BE AUTOMAGICALLY GENERATED BASED ON WHAT WE USE
+      macroList = ['PGstandard', 'MathObjects']
+      
+      @pgFile += "loadMacros(\n";
+      macroList.each {|macro| @pgFile += "\"#{macro}.pl\",\n"}
+      @pgFile += ");\n\n";
+      
+      @pgFile += "Context(\"Numeric\");\n\n";
+      
+      # assign random numbers to variables
+      params[:variable_name].to_a.each do |key, name|
+        if params[:variable_low[key]] != nil:
+          @pgFile += "\$#{name} = random(#{params[:variable_low[key]]},#{params[:variable_high[key]]},#{params[:variable_incrementor[key]]});\n"
+        else
+          @pgFile += "\$#{name} = list_random(#{params[:variable_list[key]]});\n"
+        end
+      end
+      
+      @pgFile += "\nTEXT(beginproblem());\n"
+      @pgFile += "Context()->texStrings;\n"
+      @pgFile += "BEGIN_TEXT\n"
+      @pgFile += "#{params[:question]}\n"
+      @pgFile += "END_TEXT\n"
+      @pgFile += "Context()->normalStrings;\n\n"
+      
+      @pgFile += "ANS(Compute(\"$answer\")->cmp());\n"
+      
+      @pgFile += "Context()->texStrings;\n"
+      @pgFile += "SOLUTION(EV3(<<'END_SOLUTION'));\n"
+      @pgFile += "#{params[:answer_explanation]}\n"
+      @pgFile += "END_SOLUTION\n"
+      @pgFile += "Context()->normalStrings;\n\n"
+      
+      @pgFile += 'ENDDOCUMENT();'
+      ## end Build .pg File
+    end
+    
     ## Request Variables
     @description = params[:description]
     
@@ -35,8 +117,6 @@ class WmlController < ApplicationController
     @variable_incrementor = params[:variable_incrementor]
     @variable_list = params[:variable_list]
     
-    #@question = params[:question]
-    @question = params[:question].to_s + "\n==ans(8)=="
     @question_type = params[:question_type]
     
     @answer = params[:answer]
@@ -44,86 +124,6 @@ class WmlController < ApplicationController
     
     @db_options = database_options_list()
     ## end Request Variables
-    
-    if request.post?
-      ## WML Parsing
-      # array of things that need to be parsed through wml
-      # make sure to assign references instead of copies
-      wml_needed = [@question, @answer_explanation]
-      # array of things that only need basic parsing
-      basic_parsing_needed = [@answer]
-      
-      # process them one at a time
-      wml_needed.each {|chunk| wml(chunk)}
-      basic_parsing_needed.each {|chunk| wml_basic(chunk)}
-      ## end WML Parsing
-      
-      ## Build .pg File
-      @pgFile = ''
-      
-      # if description has newlines, prepend ## to every line except first
-      @description.to_s.gsub!("\n", "\n##")
-      
-      # add description block
-      @pgFile += "## DESCRIPTION\n"
-      @pgFile += "## #{@description}\n"
-      @pgFile += "## ENDDESCRIPTION\n\n"
-      
-      # surround commas with single quotes so that list items are quoted
-      if @keywords != nil:
-        @keywords.gsub!(",", "','")
-      end
-      
-      @pgFile += "## DBsubject('#{@db_subject}')\n";
-      @pgFile += "## DBchapter('#{@db_chapter}')\n";
-      @pgFile += "## DBsection('#{@db_section}')\n";
-      @pgFile += "## Date('#{@problem_date}')\n";
-      @pgFile += "## Author('#{@problem_author}')\n";
-      @pgFile += "## Institution('#{@problem_institution}')\n";
-      @pgFile += "## TitleText1('#{@book_title}')\n";
-      @pgFile += "## EditionText1('#{@book_edition}')\n";
-      @pgFile += "## AuthorText1('#{@book_author}')\n";
-      @pgFile += "## Section1('#{@book_section}')\n";
-      @pgFile += "## Problem1('#{@book_problem}')\n\n";
-      
-      @pgFile += "DOCUMENT();\n\n";
-      
-      #!!# THIS NEEDS TO BE AUTOMAGICALLY GENERATED BASED ON WHAT WE USE
-      macroList = ['PGstandard', 'MathObjects']
-      
-      @pgFile += "loadMacros(\n";
-      macroList.each {|macro| @pgFile += "\"#{macro}.pl\",\n"}
-      @pgFile += ");\n\n";
-      
-      @pgFile += "Context(\"Numeric\");\n\n";
-      
-      # assign random numbers to variables
-      @variable_name.to_a.each do |key, name|
-        if @variable_low[key] != nil:
-          @pgFile += "\$#{name} = random(#{variable_low[key]},#{variable_high[key]},#{variable_incrementor[key]});\n"
-        else
-          $pgFile += "\$#{name} = list_random(#{variable_list[key]});\n"
-        end
-      end
-      
-      @pgFile += "\nTEXT(beginproblem());\n"
-      @pgFile += "Context()->texStrings;\n"
-      @pgFile += "BEGIN_TEXT\n"
-      @pgFile += "$question\n"
-      @pgFile += "END_TEXT\n"
-      @pgFile += "Context()->normalStrings;\n\n"
-      
-      @pgFile += "ANS(Compute(\"$answer\")->cmp());\n"
-      
-      @pgFile += "Context()->texStrings;\n"
-      @pgFile += "SOLUTION(EV3(<<'END_SOLUTION'));\n"
-      @pgFile += "$answer_explanation\n"
-      @pgFile += "END_SOLUTION\n"
-      @pgFile += "Context()->normalStrings;\n\n"
-      
-      @pgFile += 'ENDDOCUMENT();'
-      ## end Build .pg File
-    end
   end
   
   ## AJAX
