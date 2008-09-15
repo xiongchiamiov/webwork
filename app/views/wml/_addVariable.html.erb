@@ -8,11 +8,11 @@ type = params[:type]
 <div id="variable_<%= id %>">
 <%# this onClick does a few things:
     first, it rolls up this div for nice effect
-    second, it starts a timer that waits five seconds,
+    second, it starts a timer that waits two seconds,
     then blanks the html inside the div, so the form values don't submit
     
     the actual javascript call (unescaped) looks like this:
-      Effect.BlindUp('variable_11'); setTimeout("$('variable_11').innerHTML=\"\"", 5000);
+      Effect.BlindUp('variable_11'); setTimeout("$('variable_11').innerHTML=\"\"", 2000);
     with 11 of course being whatever id value this div has
 %>
 <%= link_to_function('[remove this variable]', "Effect.BlindUp('variable_"+id+"'); setTimeout(\"$('variable_"+id+"').innerHTML=\\\"\\\"\", 5000);") %> <br />
