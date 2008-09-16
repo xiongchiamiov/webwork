@@ -80,7 +80,7 @@ class WmlController < ApplicationController
       @pgFile += "END_TEXT\n"
       @pgFile += "Context()->normalStrings;\n\n"
       
-      @pgFile += "ANS(Compute(\"$answer\")->cmp());\n"
+      @pgFile += "ANS(Compute(\"#{params[:answer]}\")->cmp());\n"
       
       @pgFile += "Context()->texStrings;\n"
       @pgFile += "SOLUTION(EV3(<<'END_SOLUTION'));\n"
