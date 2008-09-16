@@ -213,21 +213,30 @@ class WmlController < ApplicationController
     # check if there's an answer box
     if text =~ /ans\([0-9]+\)/
       return '\{' + text.gsub('ans(', 'ans_rule(') + '\}'
-    # is there a fraction?
-    elsif text =~ /([a-zA-Z0-9\-\+`]|[{(].*[)}])+\/([a-zA-Z0-9\-\+`]|[{(].*[)}])+/
-      # select out the numerator
-      num = text.match('([a-zA-Z0-9\-+`]|[{(].*[)}])+(?=/([a-zA-Z0-9\-+`]|[{(].*[)}])+)')
-      # and the denominator
-      #denom = text.match('(?<=(([a-zA-Z0-9\-+`])|[\}\)])/)([a-zA-Z0-9\-+`]|[\{\(].*[\)\}])+')
-      # ruby <1.9 doesn't have lookbehinds built-in, so we need oniguruma
-      denom = Oniguruma::ORegexp.new('(?<=(([a-zA-Z0-9\-+`])|[\}\)])/)([a-zA-Z0-9\-+`]|[\{\(].*[\)\}])+').match(text)
-      
-      text.gsub!(/([a-zA-Z0-9\-\+`]|[{(].*[)}])+\/([a-zA-Z0-9\-\+`]|[{(].*[)}])+/, '\frac{'+num[0]+'}{'+denom[0]+'}')
-      
-      # remove any double curly brackets (meaning we used them to group expressions)
-      if text =~ /\{\{/
-        text.gsub!(/\{\{/, '{')
-        text.gsub!(/\}\}/, '}')
+    # check for other parsing possibilites that can coexist, but only one negates the simple variable substitution below
+    elsif (one = (text =~ /([a-zA-Z0-9\-\+`]|[{(].*[)}])+\/([a-zA-Z0-9\-\+`]|[{(].*[)}])+/)) || (two = (text =~ /\|.*?\|/))
+      # is there a fraction?
+      if one
+        # select out the numerator
+        num = text.match('([a-zA-Z0-9\-+`]|[{(].*[)}])+(?=/([a-zA-Z0-9\-+`]|[{(].*[)}])+)')
+        # and the denominator
+        #denom = text.match('(?<=(([a-zA-Z0-9\-+`])|[\}\)])/)([a-zA-Z0-9\-+`]|[\{\(].*[\)\}])+')
+        # ruby <1.9 doesn't have lookbehinds built-in, so we need oniguruma
+        denom = Oniguruma::ORegexp.new('(?<=(([a-zA-Z0-9\-+`])|[\}\)])/)([a-zA-Z0-9\-+`]|[\{\(].*[\)\}])+').match(text)
+        
+        text.gsub!(/([a-zA-Z0-9\-\+`]|[{(].*[)}])+\/([a-zA-Z0-9\-\+`]|[{(].*[)}])+/, '\frac{'+num[0]+'}{'+denom[0]+'}')
+        
+        # remove any double curly brackets (meaning we used them to group expressions)
+        if text =~ /\{\{/
+          text.gsub!(/\{\{/, '{')
+          text.gsub!(/\}\}/, '}')
+        end
+      end
+      # is there an absolute value?
+      if two
+        text.gsub!(/\|(.*?)\|/, 'abs(\1)')
+        # trim out extra spaces from the front of the line
+        text.gsub!(/^ */, '')
       end
     # otherwise we'll assume what's in there is just a variable, assuming it's something perl will accept
     elsif text =~ %r{^[a-zA-Z^`][a-zA-Z0-9_]*$}

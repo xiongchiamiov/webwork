@@ -43,7 +43,10 @@ class WmlControllerTest < ActionController::TestCase
       '==`xyz`=='     => '\($xyz\)',
     }
     tests['absolute value'] = {
-      #'== |52|=='     => '\(abs(52)\)',
+      '== |52|=='     => '\(abs(52)\)',
+      '==  |4|=='     => '\(abs(4)\)',
+      '== |`a`|=='    => '\(abs($a)\)',
+      '== 5+|-14|=='  => '\(5+abs(-14)\)',
     }
     
     tests.each do
