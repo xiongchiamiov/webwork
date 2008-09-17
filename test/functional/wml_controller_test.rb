@@ -95,7 +95,7 @@ class WmlControllerTest < ActionController::TestCase
     foo = WmlController.new
     tests = {}
     
-    tests['http://production.xyztextbooks.com/database_options.html'] = {
+    tests['http://production.xyztextbooks.com/database_options.php'] = {
       'subjects'  => "<option>Foo</option>\n<option>Bar</option>\n",
       'chapters'  => "<optgroup label=\"Foo\">\n<option>FooFoo</option>\n<option>FooBar</option>\n</optgroup>\n<optgroup label=\"Bar\">\n<option>BarFoo</option>\n<option>BarBar</option>\n</optgroup>\n",
       'sections'  => "<optgroup label=\"FooFoo\">\n<option>FooFooFoo</option>\n<option>FooFooBar</option>\n</optgroup>\n<optgroup label=\"FooBar\">\n<option>FooBarFoo</option>\n<option>FooBarBar</option>\n</optgroup>\n<optgroup label=\"BarFoo\">\n<option>BarFooFoo</option>\n<option>BarFooBar</option>\n</optgroup>\n<optgroup label=\"BarBar\">\n<option>BarBarFoo</option>\n<option>BarBarBar</option>\n</optgroup>\n",

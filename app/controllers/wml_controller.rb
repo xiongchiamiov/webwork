@@ -297,8 +297,24 @@ class WmlController < ApplicationController
   end
   # returns an array $html, of which keys 'subject', 'chapter' and 'section'
   # provide option lists for their respectives
-  def database_options_list(site='http://hobbes.la.asu.edu/Holt/chaps-and-secs.html')    
-    scraped_html = scrape(site)
+  def database_options_list(site='http://hobbes.la.asu.edu/Holt/chaps-and-secs.html')
+    # the default site is cached on disk
+    if site=='http://hobbes.la.asu.edu/Holt/chaps-and-secs.html'
+      if File.exists?("chaps-and-secs.html") and File.readable?("chaps-and-secs.html")
+        file = File.open("chaps-and-secs.html", "r")
+        scraped_html = ''
+        file.each { |line| scraped_html += line }
+        file.close
+      else # for whatever reason, the site isn't cached
+        scraped_html = scrape(site)
+        # would like to have a write-permission check here
+        file = File.new("chaps-and-secs.html", "w")
+        file.puts(scraped_html)
+        file.close
+      end
+    else
+      scraped_html = scrape(site)
+    end    
     
     # remove everything before the first <p><b>
     match = scraped_html.match('<p><b>')
