@@ -126,6 +126,10 @@ class WmlController < ApplicationController
     ## end Request Variables
   end
   
+  def syntax
+    
+  end
+  
   ## AJAX
   def addVariable
     render :partial => 'addVariable', :locals => { :params => params }
