@@ -1,67 +1,49 @@
-<pre>
-{{bold}}The answer is: ==ans(5)=={{/bold}}
-The equation ==x^2+3== is displayed inline, while ==|x^3== is not.
-==5/3== is a fraction.  ==5/`a`== is another one, with a being a variable.
-The variable a can be specified with ==`a`== or just ==a==, as long as it's by itself.
-The value of the function f at a is ==f(a)== or ==f(`a`)==.
-</pre>
-
-<br /><br />
-
-<pre>
-{{yadasfd}} jldskjdf {{/CENTER}} {{}}
-{{boLD}}bold text{{/bold}}
-
-numerator testing:
-==a/b==
-==5+a/b==
-==5+ a/b==
-==5+ -a/b==
-=={5+ a}/b==
-==(5+ a)/b==
-==(1*2)(5+a)/b==
-
-denominator testing:
-==a/b==
-==a/5+b==
-==a/b +5==
-==a/-b +5==
-==a/{b +5}==
-==a/(b +5)==
-==(5+a)/b(1*2)==
-
-variables:
-==a==
-==xyz==
-==`a`==
-==`xyz`==
-
-exponents:
-==x^2==
-==x**2==
-
-absolute value:
-== |52|==
-</pre>
-
-<hr>
-
 <h3>Basic Equations</h3>
 <div class="h3_section">
   <p>
     Equations are surrounded by double equal signs (==).  If started with a pipe (|), then the equation is displayed in a separate block, rather than inline.
   </p>
-  <blockquote>
-    ==x+3==<br />
-    ==|5x==
-  </blockquote>
+  <table class="blockquote">
+    <tr>
+      <td>==x+3==</td>
+      <td>\(x+3\)</td>
+      <td><%= image_tag "syntax/basic_equations/1.png", :alt => 'x+3' %></td>
+    </tr>
+    <tr>
+      <td>==|x+3==</td>
+      <td>\[x+3\]</td>
+      <td><%= image_tag "syntax/basic_equations/2.png", :alt => 'x+3' %></td>
+    </tr>
+  </table>
+  <p>
+    Absolute values are inclosed in the pipe character (|).  If coming at the beginning of an expression, they need to be preceeded with a space to differentiate from block equations.
+  </p>
+  <table class="blockquote">
+    <tr>
+      <td>==5+|-14|==</td>
+      <td>\(5+abs(-14)\)</td>
+      <td><%= image_tag "syntax/basic_equations/3.png", :alt => '5+|-14|' %></td>
+    </tr>
+    <tr>
+      <td>== |52|==</td>
+      <td>\(abs(52)\)</td>
+      <td><%= image_tag "syntax/basic_equations/4.png", :alt => '|52|' %></td>
+    </tr>
+  </table>
   <p>
     You may use either two asterisks (**) or the caret (^) to indicate exponents.
   </p>
-  <blockquote>
-    ==x^2==<br />
-    ==x**2==
-  </blockquote>
+  <table class="blockquote">
+    <tr>
+      <td>==x^2==</td>
+      <td>\(x^2\)</td>
+      <td><%= image_tag "syntax/basic_equations/5.png", :alt => 'x^2' %></td>
+    <tr>
+      <td>==x**2==</td>
+      <td>\(x^2\)</td>
+      <td><%= image_tag "syntax/basic_equations/6.png", :alt => 'x^2' %></td>
+    </tr>
+  </table>
 </div>
 
 <h3>Fractions</h3>
@@ -69,22 +51,53 @@ absolute value:
   <p>
     Fractions can most simply be specified with a slash.
   </p>
-  <blockquote>
-    ==5/3==
-  </blockquote>
+  <table class="blockquote">
+    <tr>
+      <td>==5/3==</td>
+      <td>\(\frac{5}{3}\)</td>
+      <td><%= image_tag "syntax/fractions/1.png", :alt => '5/3' %></td>
+    </tr>
+  </table>
   <p>
     A space will separate the fraction from surrounding elements, unless explicitly grouped with parenthesis or curly-brackets.
   </p>
-  <blockquote>
-    ==5+ a/b==<br />
-    ==5+ -a/b==<br />
-    =={5+ a}/b==<br />
-    ==(5+ a)/b==<br />
-    ==a/b +5==<br />
-    ==a/-b +5==<br />
-    ==a/{b +5}==<br />
-    ==a/(b +5)==
-  </blockquote>
+  <table class="blockquote">
+    <tr>
+      <td>==5+ a/b==</td>
+      <td>\(5+ \frac{a}{b}\)</td>
+      <td><%= image_tag "syntax/fractions/2.png", :alt => '5+(a/b)' %></td>
+    </tr>
+    <tr>
+      <td>==5+ -a/b==</td>
+      <td>\(5+ \frac{-a}{b}\)</td>
+      <td><%= image_tag "syntax/fractions/3.png", :alt => '5+(-a/b)' %></td>
+    </tr>
+    <tr>
+      <td>=={5+ a}/b==</td>
+      <td>\(\frac{5+ a}{b}\)</td>
+      <td><%= image_tag "syntax/fractions/4.png", :alt => '(5+ a)/b' %></td>
+    </tr>
+    <tr>
+      <td>==(5+ a)/b==</td>
+      <td>\(\frac{(5+ a)}{b}\)</td>
+      <td><%= image_tag "syntax/fractions/5.png", :alt => '(5+ a)/b' %></td>
+    </tr>
+    <tr>
+      <td>==a/b +5==</td>
+      <td>\(\frac{a}{b} +5\)</td>
+      <td><%= image_tag "syntax/fractions/6.png", :alt => '(a/b) +5' %></td>
+    </tr>
+    <tr>
+      <td>==a/{b +5}==</td>
+      <td>\(\frac{a}{b +5}\)</td>
+      <td><%= image_tag "syntax/fractions/7.png", :alt => 'a/(b +5)' %></td>
+    </tr>
+    <tr>
+      <td>==a/(b +5)==
+      <td>\(\frac{a}{(b +5)}\)</td>
+      <td><%= image_tag "syntax/fractions/8.png", :alt => 'a/(b +5)' %></td>
+    </tr>
+  </table>
 </div>
 
 <h3>Variables</h3>
@@ -92,15 +105,27 @@ absolute value:
   <p>
     Variable names are surrounded by backticks (`).
   </p>
-  <blockquote>
-    ==`var1`**2==
-    =={5+`b`}/2`a`==
-  </blockquote>
+  <table class="blockquote">
+    <tr>
+      <td>==`var1`+2==</td>
+      <td>\($var1+2\)</td>
+      <td><%= image_tag "syntax/variables/1.png", :alt => '4+2' %> &nbsp;&nbsp; <small>(var1 = 4)</td>
+    </tr>
+    <tr>
+      <td>==5+`b`/2*`a`==</td>
+      <td>\(\frac{5+$b}{2}*$a\)</td>
+      <td><%= image_tag "syntax/variables/2.png", :alt => '((5+3)/2)*3' %> &nbsp;&nbsp; <small>(a = 3, b = 3)</td>
+    </tr>
+  </table>
   <p>
     If there is no ambiguity, you can leave off the backticks.
   </p>
-  <blockquote>
-    ==var1==
-  </blockquote>
+  <table class="blockquote">
+    <tr>
+      <td>==var1==</td>
+      <td>\($var1\)</td>
+      <td><%= image_tag "syntax/variables/3.png", :alt => '4' %> &nbsp;&nbsp; <small>(var1 = 4)</small></td>
+    </tr>
+  </table>
 </div>
 
