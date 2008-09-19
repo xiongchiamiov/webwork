@@ -218,17 +218,16 @@ class WmlController < ApplicationController
     if text =~ /ans\([0-9]+\)/
       return '\{' + text.gsub('ans(', 'ans_rule(') + '\}'
     # check for other parsing possibilites that can coexist, but only one negates the simple variable substitution below
-    elsif (one = (text =~ /([a-zA-Z0-9\-\+`]|[{(].*[)}])+\/([a-zA-Z0-9\-\+`]|[{(].*[)}])+/)) || (two = (text =~ /\|.*?\|/))
+    elsif (one = (text =~ /([^ (){}]|[{(].*[)}])+\/([^ (){}]|[{(].*[)}])+/)) || (two = (text =~ /\|.*?\|/))
       # is there a fraction?
       if one
         # select out the numerator
-        num = text.match('([a-zA-Z0-9\-+`]|[{(].*[)}])+(?=/([a-zA-Z0-9\-+`]|[{(].*[)}])+)')
+        num = text.match('([^ (){}]|[{(].*[)}])+(?=/([^ (){}]|[{(].*[)}])+)')
         # and the denominator
-        #denom = text.match('(?<=(([a-zA-Z0-9\-+`])|[\}\)])/)([a-zA-Z0-9\-+`]|[\{\(].*[\)\}])+')
         # ruby <1.9 doesn't have lookbehinds built-in, so we need oniguruma
-        denom = Oniguruma::ORegexp.new('(?<=(([a-zA-Z0-9\-+`])|[\}\)])/)([a-zA-Z0-9\-+`]|[\{\(].*[\)\}])+').match(text)
+        denom = Oniguruma::ORegexp.new('(?<=(([^ (){}])|[\}\)])/)([^ (){}]|[\{\(].*[\)\}])+').match(text)
         
-        text.gsub!(/([a-zA-Z0-9\-\+`]|[{(].*[)}])+\/([a-zA-Z0-9\-\+`]|[{(].*[)}])+/, '\frac{'+num[0]+'}{'+denom[0]+'}')
+        text.gsub!(/([^ (){}]|[{(].*[)}])+\/([^ (){}]|[{(].*[)}])+/, '\frac{'+num[0]+'}{'+denom[0]+'}')
         
         # remove any double curly brackets (meaning we used them to group expressions)
         if text =~ /\{\{/

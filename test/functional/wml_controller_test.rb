@@ -83,6 +83,7 @@ class WmlControllerTest < ActionController::TestCase
       '==`a`/`b`=='         => '\(\frac{$a}{$b}\)',
       '==5+ `a`/b=='        => '\(5+ \frac{$a}{b}\)',
       '==5+ -`a`/b=='       => '\(5+ \frac{-$a}{b}\)',
+      '==5+`b`/2*`a`=='     => '\(\frac{5+$b}{2*$a}\)',
     }
     
     tests.each do
